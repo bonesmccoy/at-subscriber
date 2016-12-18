@@ -7,5 +7,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="atapi" level="project" />
+    <orderEntry type="library" name="gnu-crypto" level="project" />
+    <orderEntry type="library" name="javax-crypto" level="project" />
+    <orderEntry type="library" name="javax-security" level="project" />
   </component>
 </module>
