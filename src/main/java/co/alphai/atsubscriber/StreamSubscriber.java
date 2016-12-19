@@ -1,4 +1,4 @@
-package co.alphai.at;
+package co.alphai.atsubscriber;
 
 
 import java.io.BufferedReader;
