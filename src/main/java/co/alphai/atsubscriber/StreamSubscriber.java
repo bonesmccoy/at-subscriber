@@ -1,15 +1,17 @@
-package co.alphai.at;
+package co.alphai.atsubscriber;
 
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class StreamSubscriber extends Thread
 {
+    Configuration configuration;
 
-    public StreamSubscriber()
+    public StreamSubscriber(Configuration configuration)
     {
+        this.configuration = configuration;
+
         start();
     }
 
@@ -35,6 +37,17 @@ public class StreamSubscriber extends Thread
 
     public static void main(String args[])
     {
-        StreamSubscriber subscriber = new StreamSubscriber();
+        String configurationFilePath = args[0];
+        try {
+            String fileContents = new String(Files.readAllBytes(Paths.get(configurationFilePath)));
+            Configuration appConfiguration = new Configuration(fileContents);
+
+            System.out.println(appConfiguration.toString());
+
+            StreamSubscriber subscriber = new StreamSubscriber(appConfiguration);
+
+        } catch (IOException e) {
+            System.out.println(e.toString());
+        }
     }
 }
