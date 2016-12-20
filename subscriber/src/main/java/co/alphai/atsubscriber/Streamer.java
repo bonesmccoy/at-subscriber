@@ -3,15 +3,29 @@ package co.alphai.atsubscriber;
 import at.feedapi.ActiveTickStreamListener;
 import at.shared.ATServerAPIDefines;
 import at.utils.jlib.PrintfFormat;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
+
+import java.util.Hashtable;
 
 public class Streamer extends ActiveTickStreamListener
 {
     APISession session;
+    String collectorUrl;
 
-    public Streamer(APISession session)
+    public Streamer(APISession session, String collectorUrl)
     {
         super(session.GetSession(), false);
         this.session = session;
+        this.collectorUrl = collectorUrl;
     }
 
     public void OnATStreamTradeUpdate(ATServerAPIDefines.ATQUOTESTREAM_TRADE_UPDATE update)
@@ -20,25 +34,43 @@ public class Streamer extends ActiveTickStreamListener
         int plainSymbolIndex = strSymbol.indexOf((byte)0);
         strSymbol = strSymbol.substring(0, plainSymbolIndex);
 
-        StringBuffer sb = new StringBuffer();
-        sb.append("[");
-        sb.append(update.lastDateTime.hour);
-        sb.append(":");
-        sb.append(update.lastDateTime.minute);
-        sb.append(":");
-        sb.append(update.lastDateTime.second);
-        sb.append(":");
-        sb.append(update.lastDateTime.milliseconds);
-        sb.append("] STREAMTRADE [symbol:");
-        sb.append(strSymbol);
-        sb.append(" last:");
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode payload = mapper.createObjectNode();
+
+        payload.put("symbol", strSymbol);
+        payload.put("hour", new PrintfFormat("%d").sprintf(update.lastDateTime.hour));
+        payload.put("minute", new PrintfFormat("%d").sprintf(update.lastDateTime.minute));
+        payload.put("seconds", new PrintfFormat("%d").sprintf(update.lastDateTime.second));
+        payload.put("milliseconds", new PrintfFormat("%d").sprintf(update.lastDateTime.milliseconds));
 
         String strFormat = "%0." + update.lastPrice.precision + "f";
-        sb.append(new PrintfFormat(strFormat).sprintf(update.lastPrice.price));
-        sb.append(" lastSize:");
-        sb.append(update.lastSize);
-        sb.append("]");
-        System.out.println(sb.toString());
+
+        payload.put("price", new PrintfFormat(strFormat).sprintf(update.lastPrice.price));
+        payload.put("last_size", update.lastSize);
+
+        try {
+            System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(payload));
+        } catch (JsonProcessingException ex) {
+            System.out.println(ex.toString());
+        }
+
+        return ;
+//
+//        HttpClient client = HttpClientBuilder.create().build();
+//
+//        try {
+//            HttpPost request = new HttpPost(collectorUrl);
+//            StringEntity requestEntity = new StringEntity(
+//                    mapper.writeValueAsString(payload),
+//                    ContentType.APPLICATION_JSON
+//            );
+//
+//            request.setEntity(requestEntity);
+//            HttpResponse rawResponse = client.execute(request);
+//
+//        } catch (Exception ex) {
+//           System.out.println(ex.toString());
+//        }
     }
 
     public void OnATStreamQuoteUpdate(ATServerAPIDefines.ATQUOTESTREAM_QUOTE_UPDATE update)

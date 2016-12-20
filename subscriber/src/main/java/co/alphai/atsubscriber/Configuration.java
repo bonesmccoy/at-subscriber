@@ -12,8 +12,10 @@ public class Configuration
     protected String password;
     protected String apiKey;
 
-    protected String hostName;
-    protected Integer port;
+    protected String atHostName;
+    protected Integer atPort;
+
+    protected String collectorUrl;
 
     private Map configuration;
 
@@ -23,6 +25,7 @@ public class Configuration
         configuration = (Map) ymlReader.load(confContent);
         populateAccount();
         populateConnection();
+        populateCollector();
     }
 
     private void populateAccount()
@@ -36,8 +39,14 @@ public class Configuration
     private void populateConnection()
     {
         Map connectionNode = (Map) this.configuration.get("connection");
-        hostName = (String) connectionNode.get("hostname");
-        port = new Integer(connectionNode.get("port").toString());
+        atHostName = (String) connectionNode.get("hostname");
+        atPort = new Integer(connectionNode.get("port").toString());
+    }
+
+    private void populateCollector()
+    {
+        Map collectorNode = (Map) this.configuration.get("collector");
+        collectorUrl = (String) collectorNode.get("url");
     }
 
     public String getUsername() {
@@ -52,12 +61,16 @@ public class Configuration
         return apiKey;
     }
 
-    public String getHostName() {
-        return hostName;
+    public String getAtHostName() {
+        return atHostName;
     }
 
-    public Integer getPort() {
-        return port;
+    public Integer getAtPort() {
+        return atPort;
+    }
+
+    public String getCollectorUrl() {
+        return collectorUrl;
     }
 
     public String toString()

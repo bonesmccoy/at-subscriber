@@ -1,13 +1,11 @@
 package co.alphai.atsubscriber;
 
-import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import at.feedapi.ActiveTickServerAPI;
 import at.feedapi.Helpers;
 import at.shared.ATServerAPIDefines;
 import at.utils.jlib.Errors;
-import sun.jvm.hotspot.utilities.soql.Callable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,7 +34,7 @@ public class StreamSubscriber extends Thread
     public void run()
     {
         serverapi = new ActiveTickServerAPI();
-        apiSession = new APISession(serverapi);
+        apiSession = new APISession(serverapi, this.configuration);
         serverapi.ATInitAPI();
 
         if (! connect() ) {
@@ -78,8 +76,8 @@ public class StreamSubscriber extends Thread
         atguid.SetGuid(configuration.getApiKey());
 
         boolean rc = apiSession.Init(atguid,
-                configuration.getHostName(),
-                configuration.getPort(),
+                configuration.getAtHostName(),
+                configuration.getAtPort(),
                 configuration.getUsername(),
                 configuration.getPassword()
         );
@@ -117,7 +115,7 @@ public class StreamSubscriber extends Thread
                 if (count != 2) {
                     PrintUsage();
                 } else {
-                    unsubscribeTradesOnly((String)ls.get(1));
+                    unSubscribeTradesOnly((String)ls.get(1));
                 }
                 break;
             default:
@@ -141,6 +139,7 @@ public class StreamSubscriber extends Thread
 
     public void subscribeTradesOnly(String commaSeparatedSymbolsList)
     {
+        if (!checkSession()) { return; }
         List<ATServerAPIDefines.ATSYMBOL> lstSymbols = parseInputSymbolList(commaSeparatedSymbolsList);
 
         ATServerAPIDefines.ATStreamRequestType requestType = (new ATServerAPIDefines()).new ATStreamRequestType();
@@ -149,14 +148,27 @@ public class StreamSubscriber extends Thread
         doRequest(commaSeparatedSymbolsList, lstSymbols, requestType);
     }
 
-    public void unsubscribeTradesOnly(String commaSeparatedSymbolsList)
+    public void unSubscribeTradesOnly(String commaSeparatedSymbolsList)
     {
+        if (!checkSession()) { return; }
+
         List<ATServerAPIDefines.ATSYMBOL> lstSymbols = parseInputSymbolList(commaSeparatedSymbolsList);
 
         ATServerAPIDefines.ATStreamRequestType requestType = (new ATServerAPIDefines()).new ATStreamRequestType();
         requestType.m_streamRequestType =  ATServerAPIDefines.ATStreamRequestType.StreamRequestUnsubscribeTradesOnly ;
 
         doRequest(commaSeparatedSymbolsList, lstSymbols, requestType);
+    }
+
+    public boolean checkSession()
+    {
+        if (!apiSession.session.IsConnected()) {
+            System.out.println("Session is not connected. Retry.");
+
+            return false;
+        }
+
+        return true;
     }
 
     private List<ATServerAPIDefines.ATSYMBOL> parseInputSymbolList(String commaSeparatedSymbolsList) {

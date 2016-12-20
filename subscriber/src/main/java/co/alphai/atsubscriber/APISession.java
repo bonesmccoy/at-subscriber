@@ -16,6 +16,7 @@ public class APISession extends ATCallback implements
 {
     at.feedapi.Session session;
     ActiveTickServerAPI serverApi;
+    protected  Configuration configuration;
     ServerRequester serverRequester;
     Streamer streamer;
 
@@ -24,9 +25,10 @@ public class APISession extends ATCallback implements
     String password;
     ATServerAPIDefines.ATGUID apiKey;
 
-    public APISession(ActiveTickServerAPI serverApiObject)
+    public APISession(ActiveTickServerAPI serverApiObject, Configuration configuration)
     {
         serverApi = serverApiObject;
+        this.configuration = configuration;
     }
 
     public ActiveTickServerAPI GetServerAPI()
@@ -55,7 +57,7 @@ public class APISession extends ATCallback implements
             serverApi.ATShutdownSession(session);
 
         session = serverApi.ATCreateSession();
-        streamer = new Streamer(this);
+        streamer = new Streamer(this, configuration.getCollectorUrl());
         serverRequester = new ServerRequester(this, streamer);
 
         this.userId = userId;

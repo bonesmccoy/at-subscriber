@@ -7,4 +7,5 @@ connection:
   hostname: "activetick1.activetick.com"
   port: 443
 
-
+collector:
+  url: http://localhost:12313/api
