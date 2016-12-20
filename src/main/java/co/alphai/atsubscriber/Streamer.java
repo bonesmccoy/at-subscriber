@@ -73,42 +73,6 @@ public class Streamer extends ActiveTickStreamListener
 
     public void OnATStreamTopMarketMoversUpdate(ATServerAPIDefines.ATMARKET_MOVERS_STREAM_UPDATE update)
     {
-        String strSymbol = new String(update.marketMovers.symbol.symbol);
-        int plainSymbolIndex = strSymbol.indexOf((byte)0);
-        strSymbol = strSymbol.substring(0, plainSymbolIndex);
-        StringBuffer sb = new StringBuffer();
-        sb.append("RECV: [");
-        sb.append(update.lastUpdateTime.hour);
-        sb.append(":");
-        sb.append(update.lastUpdateTime.minute);
-        sb.append(":");
-        sb.append(update.lastUpdateTime.second);
-        sb.append(":");
-        sb.append(update.lastUpdateTime.milliseconds);
-        sb.append("] STREAMMOVERS [symbol:");
-        sb.append(strSymbol);
-        sb.append("]");
-        System.out.println(sb.toString());
-
-        String strFormat = "";
-        for(int i = 0; i < update.marketMovers.items.length; i++)
-        {
-            StringBuilder sb2 = new StringBuilder();
-            String strItemSymbol = new String(update.marketMovers.items[i].symbol.symbol);
-            int plainItemSymbolIndex = strItemSymbol.indexOf((byte)0);
-            strItemSymbol = strItemSymbol.substring(0, plainItemSymbolIndex);
-
-            sb2.append("symbol:");
-            sb2.append(strItemSymbol);
-
-            strFormat = "%0." + update.marketMovers.items[i].lastPrice.precision + "f";
-            sb2.append("  \t[last:" + new PrintfFormat(strFormat).sprintf(update.marketMovers.items[i].lastPrice.price));
-
-            sb2.append(" volume:");
-            sb2.append(update.marketMovers.items[i].volume);
-            System.out.println(sb2.toString());
-        }
-
-        System.out.println("-------------------------------------------------------");
+        System.out.println("OnATStreamTopMarketMoversUpdate not implemented");
     }
 }

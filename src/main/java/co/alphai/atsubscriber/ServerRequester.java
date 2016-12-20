@@ -61,21 +61,22 @@ public class ServerRequester extends at.feedapi.ActiveTickServerRequester
 
         if(responseType.m_responseType == ATServerAPIDefines.ATStreamResponseType.StreamResponseSuccess)
         {
-            String strSymbolStatus = "";
+            String symbolStatus = "";
+            String symbol = "";
             Iterator<ATServerAPIDefines.ATQUOTESTREAM_DATA_ITEM> itrDataItems = vecData.iterator();
             while(itrDataItems.hasNext())
             {
                 ATServerAPIDefines.ATQUOTESTREAM_DATA_ITEM atDataItem = (ATServerAPIDefines.ATQUOTESTREAM_DATA_ITEM)itrDataItems.next();
                 switch(atDataItem.symbolStatus.m_atSymbolStatus)
                 {
-                    case ATServerAPIDefines.ATSymbolStatus.SymbolStatusSuccess: strSymbolStatus = "SymbolStatusSuccess"; break;
-                    case ATServerAPIDefines.ATSymbolStatus.SymbolStatusInvalid: strSymbolStatus = "SymbolStatusInvalid"; break;
-                    case ATServerAPIDefines.ATSymbolStatus.SymbolStatusUnavailable: strSymbolStatus = "SymbolStatusUnavailable"; break;
-                    case ATServerAPIDefines.ATSymbolStatus.SymbolStatusNoPermission: strSymbolStatus = "SymbolStatusNoPermission"; break;
+                    case ATServerAPIDefines.ATSymbolStatus.SymbolStatusSuccess: symbolStatus = "SymbolStatusSuccess";  symbol = Helpers.SymbolToString(atDataItem.symbol); break;
+                    case ATServerAPIDefines.ATSymbolStatus.SymbolStatusInvalid: symbolStatus = "SymbolStatusInvalid"; symbol = Helpers.SymbolToString(atDataItem.symbol); break;
+                    case ATServerAPIDefines.ATSymbolStatus.SymbolStatusUnavailable: symbolStatus = "SymbolStatusUnavailable"; symbol = Helpers.SymbolToString(atDataItem.symbol); break;
+                    case ATServerAPIDefines.ATSymbolStatus.SymbolStatusNoPermission: symbolStatus = "SymbolStatusNoPermission"; symbol = Helpers.SymbolToString(atDataItem.symbol); break;
                     default: break;
                 }
 
-                System.out.println("\tsymbol:" + strSymbolStatus + " symbolStatus: " + strSymbolStatus);
+                System.out.println("\tsymbol:" + symbol + " symbolStatus: " + symbolStatus);
             }
         }
     }

@@ -44,17 +44,18 @@ public class StreamSubscriber extends Thread
 
             return;
         }
+        PrintUsage();
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
         while(true) {
             try {
                 String line = br.readLine();
                 if (line.length() > 0) {
-                    if (line.startsWith("quit"))
+                    if (line.startsWith("quit")) {
                         System.out.println("Bye");
-
                         break;
+                    }
+                    parseInput(line);
                 }
             } catch (IOException e) {
                 System.out.println("IO error trying to read your input!");
@@ -119,7 +120,10 @@ public class StreamSubscriber extends Thread
                     unsubscribeTradesOnly((String)ls.get(1));
                 }
                 break;
-
+            default:
+                System.out.println("Command " + command + " not found\n");
+                PrintUsage();
+                break;
         }
     }
 
@@ -179,7 +183,9 @@ public class StreamSubscriber extends Thread
                 ActiveTickServerAPI.DEFAULT_REQUEST_TIMEOUT
         );
 
-        System.out.println("SEND " + request + ": subscribeTradesOnly request [" + commaSeparatedSymbolsList + "]");
+        String requestName = (requestType.m_streamRequestType == ATServerAPIDefines.ATStreamRequestType.StreamRequestUnsubscribeTradesOnly) ? "unsubscribe" : "subscribe";
+
+        System.out.println("SEND " + request + ": request " + requestName + " [" + commaSeparatedSymbolsList + "]");
         if(request < 0){
             System.out.println("Error = " + Errors.GetStringFromError((int)request));
         }
