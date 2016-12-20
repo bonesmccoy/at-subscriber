@@ -12,6 +12,9 @@ public class Configuration
     protected String password;
     protected String apiKey;
 
+    protected String hostName;
+    protected Integer port;
+
     private Map configuration;
 
     public Configuration(String confContent)
@@ -19,6 +22,7 @@ public class Configuration
         Yaml ymlReader = new Yaml();
         configuration = (Map) ymlReader.load(confContent);
         populateAccount();
+        populateConnection();
     }
 
     private void populateAccount()
@@ -27,6 +31,13 @@ public class Configuration
         username = (String) accountNode.get("username");
         password = (String) accountNode.get("password");
         apiKey = (String) accountNode.get("apiKey");
+    }
+
+    private void populateConnection()
+    {
+        Map connectionNode = (Map) this.configuration.get("connection");
+        hostName = (String) connectionNode.get("hostname");
+        port = new Integer(connectionNode.get("port").toString());
     }
 
     public String getUsername() {
@@ -39,6 +50,14 @@ public class Configuration
 
     public String getApiKey() {
         return apiKey;
+    }
+
+    public String getHostName() {
+        return hostName;
+    }
+
+    public Integer getPort() {
+        return port;
     }
 
     public String toString()

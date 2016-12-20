@@ -3,4 +3,8 @@ account:
   password: "my_password"
   apiKey: "my_apikey"
 
+connection:
+  hostname: "activetick1.activetick.com"
+  port: 443
+
 
