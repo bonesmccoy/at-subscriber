@@ -9,10 +9,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="atapi" level="project" />
-    <orderEntry type="library" name="gnu-crypto" level="project" />
-    <orderEntry type="library" name="javax-crypto" level="project" />
-    <orderEntry type="library" name="javax-security" level="project" />
+    <orderEntry type="library" exported="" name="atapi" level="project" />
+    <orderEntry type="library" exported="" name="gnu-crypto" level="project" />
+    <orderEntry type="library" exported="" name="javax-crypto" level="project" />
+    <orderEntry type="library" exported="" name="javax-security" level="project" />
+    <orderEntry type="library" name="Maven: org.gnu:gnu-crypto:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.yaml:snakeyaml:1.5" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.4" level="project" />

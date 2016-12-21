@@ -22,7 +22,6 @@ public class RestPublisher implements PublisherInterface{
         HttpClient client = HttpClientBuilder.create().build();
 
         try {
-            System.out.println(update.toJsonString());
 
             HttpPost request = new HttpPost(collectorUrl);
             StringEntity requestEntity = new StringEntity(
