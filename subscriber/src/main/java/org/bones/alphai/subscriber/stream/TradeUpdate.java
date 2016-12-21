@@ -1,4 +1,4 @@
-package co.alphai.atsubscriber.stream;
+package org.bones.alphai.subscriber.stream;
 
 import at.shared.ATServerAPIDefines;
 import at.utils.jlib.PrintfFormat;

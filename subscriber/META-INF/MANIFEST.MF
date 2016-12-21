@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: co.alphai.atsubscriber.StreamSubscriber
+Main-Class: org.bones.alphai.subscriber.MainClass
 

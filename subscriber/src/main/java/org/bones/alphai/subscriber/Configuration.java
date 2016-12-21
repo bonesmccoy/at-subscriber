@@ -1,4 +1,4 @@
-package co.alphai.atsubscriber;
+package org.bones.alphai.subscriber;
 
 
 

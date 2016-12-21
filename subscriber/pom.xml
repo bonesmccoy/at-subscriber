@@ -22,7 +22,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>co.alphai.atsubscriber.StreamSubscriber</mainClass>
+                            <mainClass>org.bones.alphai.subscriber.MainClass</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

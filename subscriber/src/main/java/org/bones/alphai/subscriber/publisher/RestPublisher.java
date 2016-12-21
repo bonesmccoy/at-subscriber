@@ -1,6 +1,6 @@
-package co.alphai.atsubscriber.publisher;
+package org.bones.alphai.subscriber.publisher;
 
-import co.alphai.atsubscriber.stream.TradeUpdate;
+import org.bones.alphai.subscriber.stream.TradeUpdate;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;

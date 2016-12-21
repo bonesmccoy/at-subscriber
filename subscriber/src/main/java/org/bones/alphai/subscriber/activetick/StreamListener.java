@@ -1,30 +1,18 @@
-package co.alphai.atsubscriber;
+package org.bones.alphai.subscriber.activetick;
 
 import at.feedapi.ActiveTickStreamListener;
 import at.shared.ATServerAPIDefines;
 import at.utils.jlib.PrintfFormat;
-import co.alphai.atsubscriber.publisher.PublisherInterface;
-import co.alphai.atsubscriber.publisher.RestPublisher;
-import co.alphai.atsubscriber.stream.TradeUpdate;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.bones.alphai.subscriber.publisher.PublisherInterface;
+import org.bones.alphai.subscriber.publisher.RestPublisher;
+import org.bones.alphai.subscriber.stream.TradeUpdate;
 
-import java.util.Hashtable;
-
-public class Streamer extends ActiveTickStreamListener
+public class StreamListener extends ActiveTickStreamListener
 {
     APISession session;
     String collectorUrl;
 
-    public Streamer(APISession session, String collectorUrl)
+    public StreamListener(APISession session, String collectorUrl)
     {
         super(session.GetSession(), false);
         this.session = session;

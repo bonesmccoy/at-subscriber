@@ -1,4 +1,4 @@
-package co.alphai.atsubscriber;
+package org.bones.alphai.subscriber;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -6,6 +6,8 @@ import at.feedapi.ActiveTickServerAPI;
 import at.feedapi.Helpers;
 import at.shared.ATServerAPIDefines;
 import at.utils.jlib.Errors;
+import org.bones.alphai.subscriber.activetick.APISession;
+import org.bones.alphai.subscriber.activetick.ServerRequester;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,16 +17,19 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 
-public class StreamSubscriber extends Thread
+public class MainClass extends Thread
 {
-    Configuration configuration;
+
+    private Configuration configuration;
     private static at.feedapi.ActiveTickServerAPI serverapi;
-    private static co.alphai.atsubscriber.APISession apiSession;
+    private static APISession apiSession;
 
     private static final String SUBSCRIBE_COMMAND = "subscribe";
     private static final String UNSUBSCRIBE_COMMAND = "unsubscribe";
+    private static final String HELP_COMMAND = "?";
+    private static final String QUIT_COMMAND = "quit";
 
-    public StreamSubscriber(Configuration configuration)
+    public MainClass(Configuration configuration)
     {
         this.configuration = configuration;
 
@@ -87,42 +92,54 @@ public class StreamSubscriber extends Thread
         return rc;
     }
 
-    private void parseInput(String userInput)
+    private boolean parseInput(String userInput)
     {
+        if (!(userInput.length() > 0)) {
+            return true;
+        }
+
         StringTokenizer st = new StringTokenizer(userInput);
         List ls = new ArrayList<String>();
+
         while(st.hasMoreTokens())
             ls.add(st.nextToken());
         int count = ls.size();
 
-        if(count > 0 && ((String)ls.get(0)).equalsIgnoreCase("?")) {
+        if(count > 0 && ((String)ls.get(0)).equalsIgnoreCase(HELP_COMMAND)) {
             PrintUsage();
         }
 
         String command = (String) ls.get(0);
+        boolean goOnWithExecution = true;
         switch (command) {
-            case "?":
+            case HELP_COMMAND:
                 PrintUsage();
                 break;
             case SUBSCRIBE_COMMAND:
                 if (count != 2) {
                     PrintUsage();
                 } else {
-                    subscribeTradesOnly((String)ls.get(1));
+                    String symbolsList = (String) ls.get(1);
+                    subscribeTradesOnly(symbolsList);
                 }
                 break;
             case UNSUBSCRIBE_COMMAND:
                 if (count != 2) {
                     PrintUsage();
                 } else {
-                    unSubscribeTradesOnly((String)ls.get(1));
+                    String symbolsList = (String) ls.get(1);
+                    unSubscribeTradesOnly(symbolsList);
                 }
                 break;
+            case QUIT_COMMAND:
+                goOnWithExecution = false;
             default:
                 System.out.println("Command " + command + " not found\n");
                 PrintUsage();
                 break;
         }
+
+        return goOnWithExecution;
     }
 
     private void PrintUsage()
@@ -162,7 +179,7 @@ public class StreamSubscriber extends Thread
 
     public boolean checkSession()
     {
-        if (!apiSession.session.IsConnected()) {
+        if (!apiSession.GetSession().IsConnected()) {
             System.out.println("Session is not connected. Retry.");
 
             return false;
@@ -219,7 +236,7 @@ public class StreamSubscriber extends Thread
 
             System.out.println(appConfiguration.toString());
 
-            StreamSubscriber subscriber = new StreamSubscriber(appConfiguration);
+            MainClass subscriber = new MainClass(appConfiguration);
 
         } catch (IOException e) {
             System.out.println(e.toString());

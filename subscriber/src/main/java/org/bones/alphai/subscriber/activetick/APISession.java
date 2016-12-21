@@ -1,4 +1,4 @@
-package co.alphai.atsubscriber;
+package org.bones.alphai.subscriber.activetick;
 
 import at.feedapi.ATCallback;
 import at.feedapi.ActiveTickServerAPI;
@@ -7,6 +7,7 @@ import at.feedapi.Session;
 import at.utils.jlib.Errors;
 import at.utils.jlib.OutputMessage;
 import at.shared.ATServerAPIDefines;
+import org.bones.alphai.subscriber.Configuration;
 
 public class APISession extends ATCallback implements
         ATCallback.ATLoginResponseCallback, ATCallback.ATServerTimeUpdateCallback,
@@ -16,9 +17,9 @@ public class APISession extends ATCallback implements
 {
     at.feedapi.Session session;
     ActiveTickServerAPI serverApi;
-    protected  Configuration configuration;
+    protected Configuration configuration;
     ServerRequester serverRequester;
-    Streamer streamer;
+    StreamListener streamer;
 
     long lastRequest;
     String userId;
@@ -41,7 +42,7 @@ public class APISession extends ATCallback implements
         return session;
     }
 
-    public Streamer GetStreamer()
+    public StreamListener GetStreamer()
     {
         return streamer;
     }
@@ -57,7 +58,7 @@ public class APISession extends ATCallback implements
             serverApi.ATShutdownSession(session);
 
         session = serverApi.ATCreateSession();
-        streamer = new Streamer(this, configuration.getCollectorUrl());
+        streamer = new StreamListener(this, configuration.getCollectorUrl());
         serverRequester = new ServerRequester(this, streamer);
 
         this.userId = userId;

@@ -1,42 +1,14 @@
-package co.alphai.atsubscriber;
+package org.bones.alphai.subscriber.activetick;
 
 import at.feedapi.Helpers;
 import at.shared.ATServerAPIDefines;
-import at.shared.ActiveTick.DateTime;
-import at.shared.ActiveTick.UInt64;
-import at.utils.jlib.PrintfFormat;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Iterator;
 import java.util.Vector;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Iterator;
-import java.util.Vector;
-
-import at.feedapi.Helpers;
-import at.utils.jlib.PrintfFormat;
-import at.shared.ATServerAPIDefines;
-import at.shared.ATServerAPIDefines.ATBarHistoryResponseType;
-import at.shared.ATServerAPIDefines.ATDataType;
-import at.shared.ATServerAPIDefines.ATMarketMoversDbResponseType;
-import at.shared.ATServerAPIDefines.ATQuoteDbResponseType;
-import at.shared.ATServerAPIDefines.ATStreamResponseType;
-import at.shared.ATServerAPIDefines.ATSymbolStatus;
-import at.shared.ATServerAPIDefines.ATTICKHISTORY_QUOTE_RECORD;
-import at.shared.ATServerAPIDefines.ATTICKHISTORY_TRADE_RECORD;
-import at.shared.ATServerAPIDefines.ATTickHistoryRecordType;
-import at.shared.ATServerAPIDefines.ATTickHistoryResponseType;
-import at.shared.ATServerAPIDefines.QuoteDbDataItem;
-import at.shared.ATServerAPIDefines.QuoteDbResponseItem;
-import at.shared.ATServerAPIDefines.SYSTEMTIME;
-import at.shared.ActiveTick.*;
 
 public class ServerRequester extends at.feedapi.ActiveTickServerRequester
 {
-    public ServerRequester(APISession apiSession, Streamer streamer)
+    public ServerRequester(APISession apiSession, StreamListener streamer)
     {
         super(apiSession.GetServerAPI(), apiSession.GetSession(), streamer);
     }
