@@ -16,6 +16,7 @@ services:
     build: .
     ports:
       - "18081:8080"
+      - "11717:1717"
     links:
       - database
     depends_on:
