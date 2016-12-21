@@ -3,3 +3,4 @@ out/
 subscriber/target/
 subscriber/configuration.yml
 collector/*venv
+.DS_Store

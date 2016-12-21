@@ -46,7 +46,14 @@ public class Configuration
     private void populateCollector()
     {
         Map collectorNode = (Map) this.configuration.get("collector");
-        collectorUrl = (String) collectorNode.get("url");
+        if (collectorNode != null) {
+            collectorUrl = (String) collectorNode.get("url");
+        }
+    }
+
+    public boolean hasCollector()
+    {
+        return collectorUrl != null;
     }
 
     public String getUsername() {

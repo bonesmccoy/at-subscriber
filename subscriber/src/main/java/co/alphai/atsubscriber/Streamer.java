@@ -3,6 +3,9 @@ package co.alphai.atsubscriber;
 import at.feedapi.ActiveTickStreamListener;
 import at.shared.ATServerAPIDefines;
 import at.utils.jlib.PrintfFormat;
+import co.alphai.atsubscriber.publisher.PublisherInterface;
+import co.alphai.atsubscriber.publisher.RestPublisher;
+import co.alphai.atsubscriber.stream.TradeUpdate;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,47 +33,14 @@ public class Streamer extends ActiveTickStreamListener
 
     public void OnATStreamTradeUpdate(ATServerAPIDefines.ATQUOTESTREAM_TRADE_UPDATE update)
     {
-        String strSymbol = new String(update.symbol.symbol);
-        int plainSymbolIndex = strSymbol.indexOf((byte)0);
-        strSymbol = strSymbol.substring(0, plainSymbolIndex);
+        TradeUpdate tradeUpdate = new TradeUpdate(update);
+        System.out.print(".");
+        if (collectorUrl != null)
+        {
+            PublisherInterface publisher = new RestPublisher(collectorUrl);
 
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode payload = mapper.createObjectNode();
-
-        payload.put("symbol", strSymbol);
-        payload.put("hour", new PrintfFormat("%d").sprintf(update.lastDateTime.hour));
-        payload.put("minute", new PrintfFormat("%d").sprintf(update.lastDateTime.minute));
-        payload.put("seconds", new PrintfFormat("%d").sprintf(update.lastDateTime.second));
-        payload.put("milliseconds", new PrintfFormat("%d").sprintf(update.lastDateTime.milliseconds));
-
-        String strFormat = "%0." + update.lastPrice.precision + "f";
-
-        payload.put("price", new PrintfFormat(strFormat).sprintf(update.lastPrice.price));
-        payload.put("last_size", update.lastSize);
-
-        try {
-            System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(payload));
-        } catch (JsonProcessingException ex) {
-            System.out.println(ex.toString());
+            publisher.publish(tradeUpdate);
         }
-
-        return ;
-//
-//        HttpClient client = HttpClientBuilder.create().build();
-//
-//        try {
-//            HttpPost request = new HttpPost(collectorUrl);
-//            StringEntity requestEntity = new StringEntity(
-//                    mapper.writeValueAsString(payload),
-//                    ContentType.APPLICATION_JSON
-//            );
-//
-//            request.setEntity(requestEntity);
-//            HttpResponse rawResponse = client.execute(request);
-//
-//        } catch (Exception ex) {
-//           System.out.println(ex.toString());
-//        }
     }
 
     public void OnATStreamQuoteUpdate(ATServerAPIDefines.ATQUOTESTREAM_QUOTE_UPDATE update)
