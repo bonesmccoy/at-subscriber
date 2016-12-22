@@ -83,17 +83,17 @@ public class MainClass extends Thread
         }
 
         StringTokenizer st = new StringTokenizer(userInput);
-        List ls = new ArrayList<String>();
+        List commandTokenList = new ArrayList<String>();
 
         while(st.hasMoreTokens())
-            ls.add(st.nextToken());
-        int count = ls.size();
+            commandTokenList.add(st.nextToken());
+        int count = commandTokenList.size();
 
-        if(count > 0 && ((String)ls.get(0)).equalsIgnoreCase(HELP_COMMAND)) {
+        if(count > 0 && ((String)commandTokenList.get(0)).equalsIgnoreCase(HELP_COMMAND)) {
             PrintUsage();
         }
 
-        String command = (String) ls.get(0);
+        String command = (String) commandTokenList.get(0);
         boolean goOnWithExecution = true;
         switch (command) {
             case HELP_COMMAND:
@@ -103,7 +103,7 @@ public class MainClass extends Thread
                 if (count != 2) {
                     PrintUsage();
                 } else {
-                    String symbolsList = (String) ls.get(1);
+                    String symbolsList = (String) commandTokenList.get(1);
                     subscribeTradesOnly(symbolsList);
                 }
                 break;
@@ -111,7 +111,7 @@ public class MainClass extends Thread
                 if (count != 2) {
                     PrintUsage();
                 } else {
-                    String symbolsList = (String) ls.get(1);
+                    String symbolsList = (String) commandTokenList.get(1);
                     unSubscribeTradesOnly(symbolsList);
                 }
                 break;
@@ -128,6 +128,7 @@ public class MainClass extends Thread
 
     private void PrintUsage()
     {
+
         System.out.println("Trades Stream Subscriber");
         System.out.println("-------------------------------------------------");
         System.out.println("Avaliable commands:");
