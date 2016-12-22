@@ -15,21 +15,10 @@ def collect():
     trade.minute = request_body['minute']
     trade.seconds = request_body['seconds']
     trade.milliseconds = request_body['milliseconds']
+    trade.timestamp = request_body['timestamp']
 
     trade.price = request_body['price']
     trade.last_size = request_body['lastSize']
-
-    now = datetime.datetime.now()
-    timestamp = datetime.datetime(
-        now.year,
-        now.month,
-        now.day,
-        hour=trade.hour,
-        minute=trade.minute,
-        second=trade.seconds,
-        microsecond=(trade.milliseconds*1000)
-    )
-    trade.timestamp = timestamp
 
     db.session.add(trade)
 
