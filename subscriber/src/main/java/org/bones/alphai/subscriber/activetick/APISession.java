@@ -1,19 +1,19 @@
 package org.bones.alphai.subscriber.activetick;
 
-import at.feedapi.ATCallback;
 import at.feedapi.ActiveTickServerAPI;
-import at.feedapi.Session;
 import at.utils.jlib.Errors;
-import at.utils.jlib.OutputMessage;
 import at.shared.ATServerAPIDefines;
 import org.bones.alphai.subscriber.Configuration;
+import org.bones.alphai.subscriber.activetick.callback.LoginResponseCallback;
+import org.bones.alphai.subscriber.activetick.callback.ServerMessagesCallback;
 import org.bones.alphai.subscriber.activetick.callback.SessionStatusChangeCallback;
 
-public class APISession extends ATCallback implements
-        ATCallback.ATLoginResponseCallback, ATCallback.ATServerTimeUpdateCallback,
-        ATCallback.ATRequestTimeoutCallback, ATCallback.ATOutputMessageCallback
+public class APISession
 
 {
+    private final ServerMessagesCallback serverMessagesCallback;
+    private final LoginResponseCallback loginResponseCallback;
+
     private at.feedapi.Session session;
     private ActiveTickServerAPI serverApi;
     private Configuration configuration;
@@ -29,6 +29,8 @@ public class APISession extends ATCallback implements
     {
         serverApi = serverApiObject;
         this.configuration = configuration;
+        serverMessagesCallback = new ServerMessagesCallback();
+        loginResponseCallback = new LoginResponseCallback();
     }
 
     public ActiveTickServerAPI GetServerAPI()
@@ -49,6 +51,14 @@ public class APISession extends ATCallback implements
     public ServerRequester getServerRequester()
     {
         return serverRequester;
+    }
+
+    public ServerMessagesCallback getServerMessagesCallback() {
+        return serverMessagesCallback;
+    }
+
+    public LoginResponseCallback getLoginResponseCallback() {
+        return loginResponseCallback;
     }
 
     public boolean connect()
@@ -94,21 +104,26 @@ public class APISession extends ATCallback implements
         this.apiKey = apiKey;
 
         long apiKeyResult = serverApi.ATSetAPIKey(session, this.apiKey);
+
         if (apiKeyResult == Errors.ERROR_SUCCESS) {
 
-            session.SetServerTimeUpdateCallback(this);
-            session.SetOutputMessageCallback(this);
+            session.SetServerTimeUpdateCallback(serverMessagesCallback);
+            session.SetOutputMessageCallback(serverMessagesCallback);
+
+            SessionStatusChangeCallback sessionStatusChangeCallback = new SessionStatusChangeCallback(
+                    serverApi,
+                    userId,
+                    password,
+                    loginResponseCallback,
+                    serverMessagesCallback
+            );
+
             initSuccessful = serverApi.ATInitSession(
                     session,
                     serverHostname,
                     serverHostname,
                     serverPort,
-                    new SessionStatusChangeCallback(
-                            this,
-                            serverApi,
-                            userId,
-                            password
-                    )
+                    sessionStatusChangeCallback
             );
 
             Helper.Log(serverApi.GetAPIVersionInformation());
@@ -130,41 +145,5 @@ public class APISession extends ATCallback implements
         }
 
         return true;
-    }
-
-    //ATLoginResponseCallback
-    public void process(Session session, long requestId, ATServerAPIDefines.ATLOGIN_RESPONSE response)
-    {
-        String loginResponseDescription = Helper.getLoginResponseDescription(response);
-
-        Helper.LogResponse(requestId, String.format("Login Response [%s]", loginResponseDescription));
-    }
-
-    /**
-     * ATServerTimeUpdateCallback
-     *
-     * @param serverTime
-     */
-    public void process(ATServerAPIDefines.SYSTEMTIME serverTime)
-    {
-    }
-
-    /**
-     * ATRequestTimeoutCallback
-     *
-     * @param requestId long
-     */
-    public void process(long requestId)
-    {
-        Helper.LogResponse(requestId, "Request Time Out");
-    }
-
-    /**
-     * OutputMessageCallback
-     * @param outputMessage outputMessage
-     */
-    public void process(OutputMessage outputMessage)
-    {
-        Helper.Log(outputMessage.GetMessage());
     }
 }

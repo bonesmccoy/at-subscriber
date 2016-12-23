@@ -29,7 +29,8 @@ public class ServerRequester extends at.feedapi.ActiveTickServerRequester
             default: break;
         }
 
-        System.out.println("RECV (" + origRequest +"): Quote stream response [" + strResponseType + "]\n--------------------------------------------------------------");
+        String message = "Quote stream response [" + strResponseType + "]\n--------------------------------------------------------------";
+        Helper.LogResponse(origRequest, message);
 
         if(responseType.m_responseType == ATServerAPIDefines.ATStreamResponseType.StreamResponseSuccess)
         {
@@ -63,7 +64,10 @@ public class ServerRequester extends at.feedapi.ActiveTickServerRequester
             strResponseType += symbol +"\n";
         }
 
-        System.out.println("RECV (" + origRequest +"): Constituent list response [ " + strResponseType + "]\n--------------------------------------------------------------");
+        String message = "Constituent list response [ " + strResponseType + "]" +
+                "\n--------------------------------------------------------------";
+
+        Helper.LogResponse(origRequest, message);
     }
 
     public void OnQuoteDbResponse(long origRequest, ATServerAPIDefines.ATQuoteDbResponseType responseType, Vector<ATServerAPIDefines.QuoteDbResponseItem> vecData)

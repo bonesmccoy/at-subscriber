@@ -45,7 +45,7 @@ public class Helper
         return statusDescription;
     }
 
-    static String getLoginResponseDescription(ATServerAPIDefines.ATLOGIN_RESPONSE response) {
+    public static String getLoginResponseDescription(ATServerAPIDefines.ATLOGIN_RESPONSE response) {
 
         String loginResponseDescription;
 

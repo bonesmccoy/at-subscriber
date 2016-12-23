@@ -1,6 +1,6 @@
 package org.bones.alphai.subscriber.publisher;
 
-import org.bones.alphai.subscriber.stream.TradeUpdate;
+import org.bones.alphai.subscriber.stream.UpdateInterface;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -17,7 +17,7 @@ public class RestPublisher implements PublisherInterface{
         this.collectorUrl = collectorUrl;
     }
 
-    public void publish(TradeUpdate update)
+    public void publish(UpdateInterface update)
     {
         HttpClient client = HttpClientBuilder.create().build();
 

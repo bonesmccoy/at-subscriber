@@ -13,15 +13,23 @@ public class SessionStatusChangeCallback extends ATCallback implements ATCallbac
     private APISession apiSession;
     private final String userId;
     private final String password;
+    private final LoginResponseCallback loginResponseCallback;
+    private final ServerMessagesCallback serverMessagesCallback;
     private long lastLoginRequestId;
 
-    public SessionStatusChangeCallback(APISession apiSession, ActiveTickServerAPI serverAPI, String userId, String password)
-    {
+    public SessionStatusChangeCallback(
+            ActiveTickServerAPI serverAPI,
+            String userId,
+            String password,
+            LoginResponseCallback loginResponseCallback,
+            ServerMessagesCallback serverMessagesCallback
+    ) {
         super();
         this.serverApi = serverAPI;
-        this.apiSession = apiSession;
         this.userId = userId;
         this.password = password;
+        this.loginResponseCallback = loginResponseCallback;
+        this.serverMessagesCallback = serverMessagesCallback;
     }
 
     /**
@@ -49,14 +57,14 @@ public class SessionStatusChangeCallback extends ATCallback implements ATCallbac
             session,
             userId,
             password,
-            apiSession
+            apiSession.getLoginResponseCallback()
         );
 
         boolean rc = serverApi.ATSendRequest(
             session,
             lastLoginRequestId,
             ActiveTickServerAPI.DEFAULT_REQUEST_TIMEOUT,
-            apiSession
+            apiSession.getServerMessagesCallback()
         );
 
         message = "Login request [" + userId + "] (rc = " + (char) Helpers.ConvertBooleanToByte(rc) + ")";

@@ -4,14 +4,14 @@ import at.shared.ATServerAPIDefines;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.bones.alphai.subscriber.activetick.Dictionaries;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-
-public class TradeUpdate implements UpdateInterface {
-
+public class QuoteUpdate implements UpdateInterface
+{
     private String symbol;
     private short year;
     private short month;
@@ -20,28 +20,43 @@ public class TradeUpdate implements UpdateInterface {
     private short minute;
     private short seconds;
     private short milliseconds;
-    private short pricePrecision;
-    private double price;
-    private long lastSize;
     private Date timestamp;
+    private double bidPrice;
 
-    public TradeUpdate(ATServerAPIDefines.ATQUOTESTREAM_TRADE_UPDATE update)
+    private short bidPricePrecision;
+    private long bidSize;
+    private double askPrice;
+
+    private byte askPricePrecision;
+    private long askSize;
+
+    private final byte askExchangeType;
+
+    public QuoteUpdate(ATServerAPIDefines.ATQUOTESTREAM_QUOTE_UPDATE update)
     {
         String strSymbol = new String(update.symbol.symbol);
         int plainSymbolIndex = strSymbol.indexOf((byte)0);
         symbol = strSymbol.substring(0, plainSymbolIndex);
 
-        year = update.lastDateTime.year;
-        month = update.lastDateTime.month;
-        day = update.lastDateTime.day;
-        hour = update.lastDateTime.hour;
-        minute = update.lastDateTime.minute;
-        seconds = update.lastDateTime.second;
-        milliseconds = update.lastDateTime.milliseconds;
-        price = update.lastPrice.price;
-        pricePrecision = update.lastPrice.precision;
-        lastSize = update.lastSize;
+        year = update.quoteDateTime.year;
+        month = update.quoteDateTime.month;
+        day = update.quoteDateTime.day;
+        hour = update.quoteDateTime.hour;
+        minute = update.quoteDateTime.minute;
+        seconds = update.quoteDateTime.second;
+        milliseconds = update.quoteDateTime.milliseconds;
+
         timestamp = (new GregorianCalendar(year, (month - 1), day, hour, minute, seconds)).getTime();
+
+        bidPrice = update.bidPrice.price;
+        bidPricePrecision = update.bidPrice.precision;
+        bidSize = update.bidSize;
+
+        askPrice = update.askPrice.price;
+        askPricePrecision = update.askPrice.precision;
+        askSize = update.askSize;
+
+        askExchangeType = update.askExchange.m_atExchangeType;
     }
 
     @Override
@@ -73,12 +88,22 @@ public class TradeUpdate implements UpdateInterface {
         payload.put("minute", minute);
         payload.put("seconds", seconds);
         payload.put("milliseconds", milliseconds);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         payload.put("timestamp", formatter.format(timestamp));
-        payload.put("price", price);
-        payload.put("price_precision", pricePrecision);
-        payload.put("last_size", lastSize);
+
+        payload.put("bid_price", bidPrice);
+        payload.put("bid_price_precision", bidPricePrecision);
+        payload.put("bid_size_size", bidSize);
+
+        payload.put("ask_price", askPrice);
+        payload.put("ask_price_precision", askPricePrecision);
+        payload.put("ask_size_size", askSize);
+
+        String exchangeName = Dictionaries.EXCHANGE_DICTIONARY.containsKey(Byte.toUnsignedInt(askExchangeType)) ?
+                Dictionaries.EXCHANGE_DICTIONARY.get(Byte.toUnsignedInt(askExchangeType)) :
+                String.format("%d", askExchangeType);
+            payload.put("ask_exchange_type", exchangeName);
 
         return payload;
     }
