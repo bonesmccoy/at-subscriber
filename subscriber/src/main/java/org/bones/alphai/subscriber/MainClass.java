@@ -39,10 +39,10 @@ public class MainClass extends Thread
     public void run()
     {
         serverapi = new ActiveTickServerAPI();
-        apiSession = new APISession(serverapi, this.configuration);
         serverapi.ATInitAPI();
+        apiSession = new APISession(serverapi, this.configuration);
 
-        if (! connect() ) {
+        if (! apiSession.connect() ) {
             System.out.println("Error connecting. Quit.");
 
             return;
@@ -67,29 +67,6 @@ public class MainClass extends Thread
 
         apiSession.UnInit();
         serverapi.ATShutdownAPI();
-    }
-
-    private boolean connect()
-    {
-        if(configuration.getApiKey().length() != 32) {
-            System.out.println("Warning! \n\tApiUserIdGuid should be 32 characters long and alphanumeric only.");
-
-            return false;
-        }
-
-        ATServerAPIDefines.ATGUID atguid = (new ATServerAPIDefines()).new ATGUID();
-        atguid.SetGuid(configuration.getApiKey());
-
-        boolean rc = apiSession.Init(atguid,
-                configuration.getAtHostName(),
-                configuration.getAtPort(),
-                configuration.getUsername(),
-                configuration.getPassword()
-        );
-
-        System.out.println("\nConnection: " + (rc == true ? "ok" : "failed"));
-
-        return rc;
     }
 
     private boolean parseInput(String userInput)

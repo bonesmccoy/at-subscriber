@@ -19,9 +19,9 @@ public class APISession extends ATCallback implements
     ActiveTickServerAPI serverApi;
     protected Configuration configuration;
     ServerRequester serverRequester;
-    StreamListener streamer;
+    StreamListener streamListener;
 
-    long lastRequest;
+    long lastLoginRequestId;
     String userId;
     String password;
     ATServerAPIDefines.ATGUID apiKey;
@@ -44,7 +44,7 @@ public class APISession extends ATCallback implements
 
     public StreamListener GetStreamer()
     {
-        return streamer;
+        return streamListener;
     }
 
     public ServerRequester getServerRequester()
@@ -52,32 +52,63 @@ public class APISession extends ATCallback implements
         return serverRequester;
     }
 
-    public boolean Init(ATServerAPIDefines.ATGUID apiKey, String serverHostname, int serverPort, String userId, String password)
+    public boolean connect()
     {
-        if(session != null)
-            serverApi.ATShutdownSession(session);
+        if(configuration.getApiKey().length() != 32) {
+            System.out.println("Warning! \n\tApiUserIdGuid should be 32 characters long and alphanumeric only.");
 
-        session = serverApi.ATCreateSession();
-        streamer = new StreamListener(this, configuration.getCollectorUrl());
-        serverRequester = new ServerRequester(this, streamer);
+            return false;
+        }
 
+        ATServerAPIDefines.ATGUID atGuId = (new ATServerAPIDefines()).new ATGUID();
+        atGuId.SetGuid(configuration.getApiKey());
+
+        boolean rc = initialize(
+                atGuId,
+                configuration.getAtHostName(),
+                configuration.getAtPort(),
+                configuration.getUsername(),
+                configuration.getPassword()
+        );
+
+        System.out.println("\nConnection: " + (rc == true ? "ok" : "failed"));
+
+        return rc;
+    }
+
+    public boolean initialize(ATServerAPIDefines.ATGUID apiKey, String serverHostname, int serverPort, String userId, String password)
+    {
         this.userId = userId;
         this.password = password;
         this.apiKey = apiKey;
 
-        long rc = serverApi.ATSetAPIKey(session, this.apiKey);
+        boolean succesfulInitialisation = false;
 
-        session.SetServerTimeUpdateCallback(this);
-        session.SetOutputMessageCallback(this);
+        if(session != null) {
+            serverApi.ATShutdownSession(session);
+        }
 
-        boolean initrc = false;
-        if(rc == Errors.ERROR_SUCCESS)
-            initrc = serverApi.ATInitSession(session, serverHostname, serverHostname, serverPort, this);
+        session = serverApi.ATCreateSession();
 
-        System.out.println(serverApi.GetAPIVersionInformation());
-        System.out.println("--------------------------------------------------------------------");
+        streamListener = new StreamListener(this, configuration.getCollectorUrl());
+        serverRequester = new ServerRequester(this, streamListener);
 
-        return initrc;
+        long apiKeyResult = serverApi.ATSetAPIKey(session, this.apiKey);
+        if (apiKeyResult == Errors.ERROR_SUCCESS) {
+
+            session.SetServerTimeUpdateCallback(this);
+            session.SetOutputMessageCallback(this);
+
+            succesfulInitialisation = serverApi.ATInitSession(session, serverHostname, serverHostname, serverPort, this);
+
+            Helper.Log(serverApi.GetAPIVersionInformation());
+            Helper.Log("--------------------------------------------------------------------");
+
+        } else {
+            Helper.Log(String.format("Invalid API KEY. ERROR %d", apiKeyResult));
+        }
+
+        return succesfulInitialisation;
     }
 
     public boolean UnInit()
@@ -94,58 +125,76 @@ public class APISession extends ATCallback implements
     //ATLoginResponseCallback
     public void process(Session session, long requestId, ATServerAPIDefines.ATLOGIN_RESPONSE response)
     {
-        String strLoginResponseType = "";
-        switch(response.loginResponse.m_atLoginResponseType)
-        {
-            case ATServerAPIDefines.ATLoginResponseType.LoginResponseSuccess: strLoginResponseType = "LoginResponseSuccess"; break;
-            case ATServerAPIDefines.ATLoginResponseType.LoginResponseInvalidUserid: strLoginResponseType = "LoginResponseInvalidUserid"; break;
-            case ATServerAPIDefines.ATLoginResponseType.LoginResponseInvalidPassword: strLoginResponseType = "LoginResponseInvalidPassword"; break;
-            case ATServerAPIDefines.ATLoginResponseType.LoginResponseInvalidRequest: strLoginResponseType = "LoginResponseInvalidRequest"; break;
-            case ATServerAPIDefines.ATLoginResponseType.LoginResponseLoginDenied: strLoginResponseType = "LoginResponseLoginDenied"; break;
-            case ATServerAPIDefines.ATLoginResponseType.LoginResponseServerError: strLoginResponseType = "LoginResponseServerError"; break;
-            default: strLoginResponseType = "unknown"; break;
-        }
+        String loginResponseDescription = Helper.getLoginResponseDescription(response);
 
-        System.out.println("RECV " + requestId + ": Login Response [" + strLoginResponseType + "]");
+        Helper.LogResponse(requestId, String.format("Login Response [%s]", loginResponseDescription));
     }
 
-    //ATServerTimeUpdateCallback
+    /**
+     * ATServerTimeUpdateCallback
+     *
+     * @param serverTime
+     */
     public void process(ATServerAPIDefines.SYSTEMTIME serverTime)
     {
     }
 
-    //ATRequestTimeoutCallback
-    public void process(long origRequest)
+    /**
+     * ATRequestTimeoutCallback
+     *
+     * @param requestId long
+     */
+    public void process(long requestId)
     {
-        System.out.println("(" + origRequest + "): Request timed-out\n");
+        Helper.LogResponse(requestId, "Request Time Out");
     }
 
-    //ATSessionStatusChangeCallback
+    /**
+     * ATSessionStatusChangeCallback
+     *
+     * @param session session
+     * @param type integer
+     */
     public void process(at.feedapi.Session session, ATServerAPIDefines.ATSessionStatusType type)
     {
-        String strStatusType = "";
-        switch(type.m_atSessionStatusType)
-        {
-            case ATServerAPIDefines.ATSessionStatusType.SessionStatusConnected: strStatusType = "SessionStatusConnected"; break;
-            case ATServerAPIDefines.ATSessionStatusType.SessionStatusDisconnected: strStatusType = "SessionStatusDisconnected"; break;
-            case ATServerAPIDefines.ATSessionStatusType.SessionStatusDisconnectedDuplicateLogin: strStatusType = "SessionStatusDisconnectedDuplicateLogin"; break;
-            default: break;
-        }
+        String statusDescription = Helper.getSessionStatusDescription(type);
 
-        System.out.println("RECV Status change [" + strStatusType + "]");
+        String message = String.format("Received Session status change: %s", statusDescription);
+        Helper.LogResponse(lastLoginRequestId, message);
 
-        //if we are connected to the server, send a login request
         if(type.m_atSessionStatusType == ATServerAPIDefines.ATSessionStatusType.SessionStatusConnected)
         {
-            lastRequest = serverApi.ATCreateLoginRequest(session, userId, password, this);
-            boolean rc = serverApi.ATSendRequest(session, lastRequest, ActiveTickServerAPI.DEFAULT_REQUEST_TIMEOUT, this);
-
-            System.out.println("SEND (" + lastRequest + "): Login request [" + userId + "] (rc = " + (char) Helpers.ConvertBooleanToByte(rc) + ")");
+            doLogin(session);
         }
     }
 
+    private void doLogin(Session session) {
+        String message;
+        lastLoginRequestId = serverApi.ATCreateLoginRequest(
+            session,
+                userId,
+                password,
+                this
+        );
+
+        boolean rc = serverApi.ATSendRequest(
+            session, lastLoginRequestId,
+            ActiveTickServerAPI.DEFAULT_REQUEST_TIMEOUT,
+            this
+        );
+
+        message = String.format("Login request [%d] (rc = %d )", userId, (char) Helpers.ConvertBooleanToByte(rc));
+        Helper.LogRequest(lastLoginRequestId, message);
+    }
+
+    /**
+     * OutputMessageCallback
+     * @param outputMessage outputMessage
+     */
     public void process(OutputMessage outputMessage)
     {
-        System.out.println(outputMessage.GetMessage());
+        Helper.Log(outputMessage.GetMessage());
     }
+
+
 }
