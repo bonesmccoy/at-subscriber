@@ -41,8 +41,8 @@ public class TestTradeUpdate
         try {
             Assert.assertEquals(
                     "{\"symbol\":\"AAPL\",\"year\":2016,\"month\":12,\"day\":22,\"hour\":12,\"minute\":0," +
-                            "\"seconds\":0,\"milliseconds\":0,\"timestamp\":\"2016-12-22 12:00:00\"," +
-                            "\"price\":123.4567,\"precision\":2,\"lastSize\":2000}",
+                            "\"seconds\":0,\"milliseconds\":0,\"timestamp\":\"2016-12-22T12:00:00Z\"," +
+                            "\"price\":123.4567,\"price_precision\":2,\"last_size\":2000}",
                     trade.toJsonString()
             );
         } catch (JsonProcessingException e) {

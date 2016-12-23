@@ -75,12 +75,12 @@ public class TradeUpdate {
         payload.put("minute", minute);
         payload.put("seconds", seconds);
         payload.put("milliseconds", milliseconds);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
         payload.put("timestamp", formatter.format(timestamp));
         payload.put("price", price);
-        payload.put("precision", pricePrecision);
-        payload.put("lastSize", lastSize);
+        payload.put("price_precision", pricePrecision);
+        payload.put("last_size", lastSize);
 
         return payload;
     }
