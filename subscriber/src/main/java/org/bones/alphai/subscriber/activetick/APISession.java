@@ -2,29 +2,28 @@ package org.bones.alphai.subscriber.activetick;
 
 import at.feedapi.ATCallback;
 import at.feedapi.ActiveTickServerAPI;
-import at.feedapi.Helpers;
 import at.feedapi.Session;
 import at.utils.jlib.Errors;
 import at.utils.jlib.OutputMessage;
 import at.shared.ATServerAPIDefines;
 import org.bones.alphai.subscriber.Configuration;
+import org.bones.alphai.subscriber.activetick.callback.SessionStatusChangeCallback;
 
 public class APISession extends ATCallback implements
         ATCallback.ATLoginResponseCallback, ATCallback.ATServerTimeUpdateCallback,
-        ATCallback.ATRequestTimeoutCallback, ATCallback.ATSessionStatusChangeCallback,
-        ATCallback.ATOutputMessageCallback
+        ATCallback.ATRequestTimeoutCallback, ATCallback.ATOutputMessageCallback
 
 {
-    at.feedapi.Session session;
-    ActiveTickServerAPI serverApi;
-    protected Configuration configuration;
-    ServerRequester serverRequester;
-    StreamListener streamListener;
+    private at.feedapi.Session session;
+    private ActiveTickServerAPI serverApi;
+    private Configuration configuration;
+    private ServerRequester serverRequester;
+    private StreamListener streamListener;
 
-    long lastLoginRequestId;
-    String userId;
-    String password;
-    ATServerAPIDefines.ATGUID apiKey;
+    private long lastLoginRequestId;
+    private String userId;
+    private String password;
+    private ATServerAPIDefines.ATGUID apiKey;
 
     public APISession(ActiveTickServerAPI serverApiObject, Configuration configuration)
     {
@@ -54,17 +53,16 @@ public class APISession extends ATCallback implements
 
     public boolean connect()
     {
-        boolean success = false;
         if(configuration.getApiKey().length() != 32) {
             System.out.println("Warning! \n\tApiUserIdGuid should be 32 characters long and alphanumeric only.");
 
-            return success;
+            return false;
         }
 
         ATServerAPIDefines.ATGUID atGuId = (new ATServerAPIDefines()).new ATGUID();
         atGuId.SetGuid(configuration.getApiKey());
 
-        success = initialize(
+        boolean success = initializeSession(
                 atGuId,
                 configuration.getAtHostName(),
                 configuration.getAtPort(),
@@ -78,7 +76,7 @@ public class APISession extends ATCallback implements
         return success;
     }
 
-    public boolean initialize(ATServerAPIDefines.ATGUID apiKey, String serverHostname, int serverPort, String userId, String password)
+    private boolean initializeSession(ATServerAPIDefines.ATGUID apiKey, String serverHostname, int serverPort, String userId, String password)
     {
         boolean initSuccessful = false;
 
@@ -100,8 +98,18 @@ public class APISession extends ATCallback implements
 
             session.SetServerTimeUpdateCallback(this);
             session.SetOutputMessageCallback(this);
-
-            initSuccessful = serverApi.ATInitSession(session, serverHostname, serverHostname, serverPort, this);
+            initSuccessful = serverApi.ATInitSession(
+                    session,
+                    serverHostname,
+                    serverHostname,
+                    serverPort,
+                    new SessionStatusChangeCallback(
+                            this,
+                            serverApi,
+                            userId,
+                            password
+                    )
+            );
 
             Helper.Log(serverApi.GetAPIVersionInformation());
             Helper.Log("--------------------------------------------------------------------");
@@ -152,45 +160,6 @@ public class APISession extends ATCallback implements
     }
 
     /**
-     * ATSessionStatusChangeCallback
-     *
-     * @param session session
-     * @param type integer
-     */
-    public void process(at.feedapi.Session session, ATServerAPIDefines.ATSessionStatusType type)
-    {
-        String statusDescription = Helper.getSessionStatusDescription(type);
-
-        String message = String.format("Received Session status change: %s", statusDescription);
-        Helper.LogResponse(lastLoginRequestId, message);
-
-        if(type.m_atSessionStatusType == ATServerAPIDefines.ATSessionStatusType.SessionStatusConnected)
-        {
-            doLogin(session);
-        }
-    }
-
-    private void doLogin(at.feedapi.Session session) {
-        String message;
-        lastLoginRequestId = serverApi.ATCreateLoginRequest(
-            session,
-            userId,
-            password,
-            this
-        );
-
-        boolean rc = serverApi.ATSendRequest(
-            session,
-            lastLoginRequestId,
-            ActiveTickServerAPI.DEFAULT_REQUEST_TIMEOUT,
-            this
-        );
-
-        message = "Login request [" + userId + "] (rc = " + (char) Helpers.ConvertBooleanToByte(rc) + ")";
-        Helper.LogRequest(lastLoginRequestId, message);
-    }
-
-    /**
      * OutputMessageCallback
      * @param outputMessage outputMessage
      */
@@ -198,6 +167,4 @@ public class APISession extends ATCallback implements
     {
         Helper.Log(outputMessage.GetMessage());
     }
-
-
 }
