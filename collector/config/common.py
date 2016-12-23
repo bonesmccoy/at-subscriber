@@ -14,6 +14,8 @@ class CommonConfig:
     DB_PASSWORD = 'password'
     DB_PROTOCOL = 'mysql+pymysql'
 
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
     LOG_LEVEL = logging.INFO
 
     FLASK_DEBUG = True

@@ -11,14 +11,18 @@ def collect():
     trade = TradeStream()
 
     trade.symbol = request_body['symbol']
+    trade.year = request_body['year']
+    trade.month = request_body['hour']
+    trade.day = request_body['hour']
     trade.hour = request_body['hour']
     trade.minute = request_body['minute']
     trade.seconds = request_body['seconds']
     trade.milliseconds = request_body['milliseconds']
-    trade.timestamp = request_body['timestamp']
+    trade.timestamp = datetime.datetime.strptime(request_body['timestamp'], '%Y-%m-%dT%H:%M:%SZ')
 
     trade.price = request_body['price']
-    trade.last_size = request_body['lastSize']
+    trade.price_precision = request_body['price_precision']
+    trade.last_size = request_body['last_size']
 
     db.session.add(trade)
 
