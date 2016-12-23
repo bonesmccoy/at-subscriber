@@ -32,8 +32,6 @@ public class RestPublisher implements PublisherInterface{
             request.setEntity(requestEntity);
             HttpResponse rawResponse = client.execute(request);
 
-
-
         } catch (Exception ex) {
            System.out.println(ex.toString());
         }

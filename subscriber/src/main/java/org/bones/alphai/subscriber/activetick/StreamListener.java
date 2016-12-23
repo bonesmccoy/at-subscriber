@@ -22,7 +22,7 @@ public class StreamListener extends ActiveTickStreamListener
     public void OnATStreamTradeUpdate(ATServerAPIDefines.ATQUOTESTREAM_TRADE_UPDATE update)
     {
         TradeUpdate tradeUpdate = new TradeUpdate(update);
-        System.out.print(".");
+        //System.out.print(".");
         if (collectorUrl != null)
         {
             PublisherInterface publisher = new RestPublisher(collectorUrl);

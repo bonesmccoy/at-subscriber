@@ -30,7 +30,7 @@ collector:
 Run the app
 -----------
 ```bash
-java --jar subscriber.jar configuration.yml
+java -jar bin/subscriber.jar configuration.yml
 ````
 
 Available commands
@@ -54,6 +54,7 @@ To quit the app
 ```bash
 quit
 ```
+
 
 Known issue building the jar with intellij
 
