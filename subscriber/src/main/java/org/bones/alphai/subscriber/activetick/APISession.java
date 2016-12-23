@@ -54,16 +54,17 @@ public class APISession extends ATCallback implements
 
     public boolean connect()
     {
+        boolean success = false;
         if(configuration.getApiKey().length() != 32) {
             System.out.println("Warning! \n\tApiUserIdGuid should be 32 characters long and alphanumeric only.");
 
-            return false;
+            return success;
         }
 
         ATServerAPIDefines.ATGUID atGuId = (new ATServerAPIDefines()).new ATGUID();
         atGuId.SetGuid(configuration.getApiKey());
 
-        boolean rc = initialize(
+        success = initialize(
                 atGuId,
                 configuration.getAtHostName(),
                 configuration.getAtPort(),
@@ -71,18 +72,15 @@ public class APISession extends ATCallback implements
                 configuration.getPassword()
         );
 
-        System.out.println("\nConnection: " + (rc == true ? "ok" : "failed"));
+        String message = String.format("\nConnection %s", (success == true) ? "ok" : "fail");
+        Helper.Log(message);
 
-        return rc;
+        return success;
     }
 
     public boolean initialize(ATServerAPIDefines.ATGUID apiKey, String serverHostname, int serverPort, String userId, String password)
     {
-        this.userId = userId;
-        this.password = password;
-        this.apiKey = apiKey;
-
-        boolean succesfulInitialisation = false;
+        boolean initSuccessful = false;
 
         if(session != null) {
             serverApi.ATShutdownSession(session);
@@ -93,13 +91,17 @@ public class APISession extends ATCallback implements
         streamListener = new StreamListener(this, configuration.getCollectorUrl());
         serverRequester = new ServerRequester(this, streamListener);
 
+        this.userId = userId;
+        this.password = password;
+        this.apiKey = apiKey;
+
         long apiKeyResult = serverApi.ATSetAPIKey(session, this.apiKey);
         if (apiKeyResult == Errors.ERROR_SUCCESS) {
 
             session.SetServerTimeUpdateCallback(this);
             session.SetOutputMessageCallback(this);
 
-            succesfulInitialisation = serverApi.ATInitSession(session, serverHostname, serverHostname, serverPort, this);
+            initSuccessful = serverApi.ATInitSession(session, serverHostname, serverHostname, serverPort, this);
 
             Helper.Log(serverApi.GetAPIVersionInformation());
             Helper.Log("--------------------------------------------------------------------");
@@ -108,7 +110,7 @@ public class APISession extends ATCallback implements
             Helper.Log(String.format("Invalid API KEY. ERROR %d", apiKeyResult));
         }
 
-        return succesfulInitialisation;
+        return initSuccessful;
     }
 
     public boolean UnInit()
@@ -168,22 +170,23 @@ public class APISession extends ATCallback implements
         }
     }
 
-    private void doLogin(Session session) {
+    private void doLogin(at.feedapi.Session session) {
         String message;
         lastLoginRequestId = serverApi.ATCreateLoginRequest(
             session,
-                userId,
-                password,
-                this
+            userId,
+            password,
+            this
         );
 
         boolean rc = serverApi.ATSendRequest(
-            session, lastLoginRequestId,
+            session,
+            lastLoginRequestId,
             ActiveTickServerAPI.DEFAULT_REQUEST_TIMEOUT,
             this
         );
 
-        message = String.format("Login request [%d] (rc = %d )", userId, (char) Helpers.ConvertBooleanToByte(rc));
+        message = "Login request [" + userId + "] (rc = " + (char) Helpers.ConvertBooleanToByte(rc) + ")";
         Helper.LogRequest(lastLoginRequestId, message);
     }
 
