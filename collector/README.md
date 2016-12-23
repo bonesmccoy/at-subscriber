@@ -104,12 +104,12 @@ Run docker orchestration
 -------
 
 ```
-http://localhost:18080/1.0/ui/
+http://localhost:18081/1.0/ui/
 ```
 
 Swagger file
 ```
-http://localhost:18080/1.0/swagger.json
+http://localhost:18081/1.0/swagger.json
 ```
 
 
