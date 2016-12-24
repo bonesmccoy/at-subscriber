@@ -17,6 +17,9 @@ public class Configuration
 
     protected String collectorUrl;
 
+    protected String logFilePath;
+    protected String logLevel;
+
     private Map configuration;
 
     public Configuration(String confContent)
@@ -26,6 +29,7 @@ public class Configuration
         populateAccount();
         populateConnection();
         populateCollector();
+        populateLogging();
     }
 
     private void populateAccount()
@@ -48,6 +52,15 @@ public class Configuration
         Map collectorNode = (Map) this.configuration.get("collector");
         if (collectorNode != null) {
             collectorUrl = (String) collectorNode.get("url");
+        }
+    }
+
+    private void populateLogging()
+    {
+        Map loggingNode = (Map) this.configuration.get("logging");
+        if (loggingNode != null) {
+            logFilePath = (String) loggingNode.get("file");
+            logLevel = (String) loggingNode.get("level");
         }
     }
 
@@ -78,6 +91,14 @@ public class Configuration
 
     public String getCollectorUrl() {
         return collectorUrl;
+    }
+
+    public String getLogFilePath() {
+        return logFilePath;
+    }
+
+    public String getLogLevel() {
+        return logLevel;
     }
 
     public String toString()

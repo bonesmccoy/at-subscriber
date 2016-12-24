@@ -8,4 +8,8 @@ connection:
   port: 443
 
 collector:
-  url: http://localhost:12313/api
+  url: http://localhost:18081/1.0/trade
+
+logging:
+  file: "log/publisher_log.log"
+  level: "INFO"

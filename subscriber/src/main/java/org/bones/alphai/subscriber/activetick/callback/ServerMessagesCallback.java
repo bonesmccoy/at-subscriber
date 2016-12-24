@@ -24,7 +24,7 @@ public class ServerMessagesCallback extends ATCallback implements ATCallback.ATS
      */
     public void process(long requestId)
     {
-        Helper.LogResponse(requestId, "Request Time Out");
+        Helper.PrintResponse(requestId, "Request Time Out");
     }
 
     /**
@@ -33,6 +33,6 @@ public class ServerMessagesCallback extends ATCallback implements ATCallback.ATS
      */
     public void process(OutputMessage outputMessage)
     {
-        Helper.Log(outputMessage.GetMessage());
+        Helper.PrintOut(outputMessage.GetMessage());
     }
 }

@@ -7,6 +7,7 @@ import org.bones.alphai.subscriber.Configuration;
 import org.bones.alphai.subscriber.activetick.callback.LoginResponseCallback;
 import org.bones.alphai.subscriber.activetick.callback.ServerMessagesCallback;
 import org.bones.alphai.subscriber.activetick.callback.SessionStatusChangeCallback;
+import java.util.logging.*;
 
 public class APISession
 
@@ -20,10 +21,12 @@ public class APISession
     private ServerRequester serverRequester;
     private StreamListener streamListener;
 
-    private long lastLoginRequestId;
     private String userId;
     private String password;
     private ATServerAPIDefines.ATGUID apiKey;
+
+    private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
 
     public APISession(ActiveTickServerAPI serverApiObject, Configuration configuration)
     {
@@ -64,9 +67,8 @@ public class APISession
     public boolean connect()
     {
         if(configuration.getApiKey().length() != 32) {
-            System.out.println("Warning! \n\tApiUserIdGuid should be 32 characters long and alphanumeric only.");
-
-            return false;
+           Helper.PrintOut("Warning! \n\tApiUserIdGuid should be 32 characters long and alphanumeric only.");
+           return false;
         }
 
         ATServerAPIDefines.ATGUID atGuId = (new ATServerAPIDefines()).new ATGUID();
@@ -81,7 +83,8 @@ public class APISession
         );
 
         String message = String.format("\nConnection %s", (success == true) ? "ok" : "fail");
-        Helper.Log(message);
+        Helper.PrintOut(message);
+        LOGGER.info(message + "\n");
 
         return success;
     }
@@ -126,11 +129,13 @@ public class APISession
                     sessionStatusChangeCallback
             );
 
-            Helper.Log(serverApi.GetAPIVersionInformation());
-            Helper.Log("--------------------------------------------------------------------");
+            Helper.PrintOut(serverApi.GetAPIVersionInformation());
+            Helper.PrintOut("--------------------------------------------------------------------");
 
         } else {
-            Helper.Log(String.format("Invalid API KEY. ERROR %d", apiKeyResult));
+            String message = String.format("Invalid API KEY. ERROR %d", apiKeyResult);
+            Helper.PrintOut(message);
+            LOGGER.info(message + "\n");
         }
 
         return initSuccessful;

@@ -12,6 +12,6 @@ public class LoginResponseCallback extends ATCallback implements ATCallback.ATLo
     {
         String loginResponseDescription = Helper.getLoginResponseDescription(response);
 
-        Helper.LogResponse(requestId, String.format("Login Response [%s]", loginResponseDescription));
+        Helper.PrintResponse(requestId, String.format("Login Response [%s]", loginResponseDescription));
     }
 }

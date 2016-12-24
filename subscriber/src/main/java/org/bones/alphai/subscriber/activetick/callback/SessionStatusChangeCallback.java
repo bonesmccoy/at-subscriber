@@ -43,7 +43,7 @@ public class SessionStatusChangeCallback extends ATCallback implements ATCallbac
         String statusDescription = Helper.getSessionStatusDescription(type);
 
         String message = String.format("Received Session status change: %s", statusDescription);
-        Helper.LogResponse(lastLoginRequestId, message);
+        Helper.PrintResponse(lastLoginRequestId, message);
 
         if(type.m_atSessionStatusType == ATServerAPIDefines.ATSessionStatusType.SessionStatusConnected)
         {
@@ -57,17 +57,17 @@ public class SessionStatusChangeCallback extends ATCallback implements ATCallbac
             session,
             userId,
             password,
-            apiSession.getLoginResponseCallback()
+            loginResponseCallback
         );
 
         boolean rc = serverApi.ATSendRequest(
             session,
             lastLoginRequestId,
             ActiveTickServerAPI.DEFAULT_REQUEST_TIMEOUT,
-            apiSession.getServerMessagesCallback()
+            serverMessagesCallback
         );
 
         message = "Login request [" + userId + "] (rc = " + (char) Helpers.ConvertBooleanToByte(rc) + ")";
-        Helper.LogRequest(lastLoginRequestId, message);
+        Helper.PrintRequest(lastLoginRequestId, message);
     }
 }

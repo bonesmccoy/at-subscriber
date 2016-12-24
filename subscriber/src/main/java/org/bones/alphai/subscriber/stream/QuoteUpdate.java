@@ -12,25 +12,22 @@ import java.util.GregorianCalendar;
 
 public class QuoteUpdate implements UpdateInterface
 {
-    private String symbol;
-    private short year;
-    private short month;
-    private short day;
-    private short hour;
-    private short minute;
-    private short seconds;
-    private short milliseconds;
-    private Date timestamp;
-    private double bidPrice;
-
-    private short bidPricePrecision;
-    private long bidSize;
-    private double askPrice;
-
-    private byte askPricePrecision;
-    private long askSize;
-
-    private final byte askExchangeType;
+    public final String symbol;
+    public final short year;
+    public final short month;
+    public final short day;
+    public final short hour;
+    public final short minute;
+    public final short seconds;
+    public final short milliseconds;
+    public final Date timestamp;
+    public final double bidPrice;
+    public final short bidPricePrecision;
+    public final long bidSize;
+    public final double askPrice;
+    public final byte askPricePrecision;
+    public final long askSize;
+    public final byte askExchangeType;
 
     public QuoteUpdate(ATServerAPIDefines.ATQUOTESTREAM_QUOTE_UPDATE update)
     {

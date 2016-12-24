@@ -12,18 +12,19 @@ import java.util.GregorianCalendar;
 
 public class TradeUpdate implements UpdateInterface {
 
-    private String symbol;
-    private short year;
-    private short month;
-    private short day;
-    private short hour;
-    private short minute;
-    private short seconds;
-    private short milliseconds;
-    private short pricePrecision;
-    private double price;
-    private long lastSize;
-    private Date timestamp;
+    public final String symbol;
+    public final short year;
+    public final short month;
+    public final short day;
+    public final short hour;
+    public final short minute;
+    public final short seconds;
+    public final short milliseconds;
+    public final short pricePrecision;
+    public final double price;
+    public final long lastSize;
+    public final Date timestamp;
+
 
     public TradeUpdate(ATServerAPIDefines.ATQUOTESTREAM_TRADE_UPDATE update)
     {

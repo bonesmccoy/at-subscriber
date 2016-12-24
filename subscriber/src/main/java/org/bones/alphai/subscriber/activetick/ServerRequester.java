@@ -30,7 +30,7 @@ public class ServerRequester extends at.feedapi.ActiveTickServerRequester
         }
 
         String message = "Quote stream response [" + strResponseType + "]\n--------------------------------------------------------------";
-        Helper.LogResponse(origRequest, message);
+        Helper.PrintResponse(origRequest, message);
 
         if(responseType.m_responseType == ATServerAPIDefines.ATStreamResponseType.StreamResponseSuccess)
         {
@@ -67,7 +67,7 @@ public class ServerRequester extends at.feedapi.ActiveTickServerRequester
         String message = "Constituent list response [ " + strResponseType + "]" +
                 "\n--------------------------------------------------------------";
 
-        Helper.LogResponse(origRequest, message);
+        Helper.PrintResponse(origRequest, message);
     }
 
     public void OnQuoteDbResponse(long origRequest, ATServerAPIDefines.ATQuoteDbResponseType responseType, Vector<ATServerAPIDefines.QuoteDbResponseItem> vecData)

@@ -8,6 +8,8 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 
+
+
 public class RestPublisher implements PublisherInterface{
 
     private String collectorUrl;

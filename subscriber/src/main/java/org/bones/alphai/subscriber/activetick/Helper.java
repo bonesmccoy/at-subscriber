@@ -4,19 +4,19 @@ import at.shared.ATServerAPIDefines;
 
 public class Helper
 {
-    public static void Log(String message)
+    public static void PrintOut(String message)
     {
         System.out.println(message);
     }
 
-    public static void LogResponse(long requestId, String message)
+    public static void PrintResponse(long requestId, String message)
     {
-        Log(String.format("RECEIVED request[%d]: %s", requestId, message));
+        PrintOut(String.format("RECEIVED request[%d]: %s", requestId, message));
     }
 
-    public static void LogRequest(long requestId, String message)
+    public static void PrintRequest(long requestId, String message)
     {
-        Log(String.format("SEND request[%d]: %s", requestId, message));
+        PrintOut(String.format("SEND request[%d]: %s", requestId, message));
     }
 
     public static String getSessionStatusDescription(ATServerAPIDefines.ATSessionStatusType sessionStatusType) {
