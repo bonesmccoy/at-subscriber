@@ -6,18 +6,18 @@ import org.bones.alphai.subscriber.exception.SubscriberException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-public class Command
+public class CommandParser
 {
     ArrayList<AbstractCommand> availableCommands;
 
-    public Command()
+    public CommandParser()
     {
         availableCommands = new ArrayList<AbstractCommand>();
         availableCommands.add(new HelpCommand());
         availableCommands.add(new QuitCommand());
     }
 
-    public boolean execute(String userInput) throws SubscriberException
+    public boolean parse(String userInput) throws SubscriberException
     {
         if (!(userInput.length() > 0)) {
             return true;
