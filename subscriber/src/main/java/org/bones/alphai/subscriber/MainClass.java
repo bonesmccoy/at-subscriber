@@ -7,6 +7,7 @@ import at.feedapi.Helpers;
 import at.shared.ATServerAPIDefines;
 import at.utils.jlib.Errors;
 import org.bones.alphai.subscriber.activetick.APISession;
+import org.bones.alphai.subscriber.activetick.Helper;
 import org.bones.alphai.subscriber.activetick.ServerRequester;
 
 import java.io.BufferedReader;
@@ -15,6 +16,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 
 public class MainClass extends Thread
@@ -29,6 +31,8 @@ public class MainClass extends Thread
     private static final String HELP_COMMAND = "?";
     private static final String QUIT_COMMAND = "quit";
 
+    private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
     public MainClass(Configuration configuration)
     {
         this.configuration = configuration;
@@ -39,10 +43,10 @@ public class MainClass extends Thread
     public void run()
     {
         serverapi = new ActiveTickServerAPI();
-        apiSession = new APISession(serverapi, this.configuration);
         serverapi.ATInitAPI();
+        apiSession = new APISession(serverapi, this.configuration);
 
-        if (! connect() ) {
+        if (! apiSession.connect() ) {
             System.out.println("Error connecting. Quit.");
 
             return;
@@ -55,41 +59,21 @@ public class MainClass extends Thread
                 String line = br.readLine();
                 if (line.length() > 0) {
                     if (line.startsWith("quit")) {
-                        System.out.println("Bye");
+                        Helper.PrintOut("Bye");
                         break;
                     }
                     parseInput(line);
                 }
             } catch (IOException e) {
-                System.out.println("IO error trying to read your input!");
+                Helper.PrintOut("IO error trying to read your input!");
+                LOGGER.info(e.getStackTrace().toString());
+            } catch (Exception e) {
+                LOGGER.info(e.getStackTrace().toString());
             }
         }
 
         apiSession.UnInit();
         serverapi.ATShutdownAPI();
-    }
-
-    private boolean connect()
-    {
-        if(configuration.getApiKey().length() != 32) {
-            System.out.println("Warning! \n\tApiUserIdGuid should be 32 characters long and alphanumeric only.");
-
-            return false;
-        }
-
-        ATServerAPIDefines.ATGUID atguid = (new ATServerAPIDefines()).new ATGUID();
-        atguid.SetGuid(configuration.getApiKey());
-
-        boolean rc = apiSession.Init(atguid,
-                configuration.getAtHostName(),
-                configuration.getAtPort(),
-                configuration.getUsername(),
-                configuration.getPassword()
-        );
-
-        System.out.println("\nConnection: " + (rc == true ? "ok" : "failed"));
-
-        return rc;
     }
 
     private boolean parseInput(String userInput)
@@ -234,7 +218,7 @@ public class MainClass extends Thread
             String fileContents = new String(Files.readAllBytes(Paths.get(configurationFilePath)));
             Configuration appConfiguration = new Configuration(fileContents);
 
-            System.out.println(appConfiguration.toString());
+            MainLogger.setup(appConfiguration.getLogFilePath(), appConfiguration.getLogLevel());
 
             MainClass subscriber = new MainClass(appConfiguration);
 

@@ -35,7 +35,7 @@ public class TestTradeUpdate
         updateFromServer.symbol = Helpers.StringToSymbol("AAPL");
         updateFromServer.lastSize = 2000;
 
-        TradeUpdate trade = new TradeUpdate(updateFromServer);
+        UpdateInterface trade = new TradeUpdate(updateFromServer);
 
         Assert.assertTrue(trade.toJsonNode() instanceof ObjectNode);
         try {

@@ -1,0 +1,7 @@
+ATInitAPI()
+ATCreateSession()
+ATSetAPIKey()
+ATSetStreamUpdateCallback()
+ATInitSession()
+ATCreateLoginRequest()
+ATSendRequest()
