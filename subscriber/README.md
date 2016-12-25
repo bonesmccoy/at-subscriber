@@ -24,6 +24,10 @@ connection:
 
 collector:
   url: "http://<collector_ip>:<collector_port>/1.0/trade"
+
+logging:
+  file: "log/publisher_log.log"
+  level: "INFO"
 ```
 
 
@@ -32,6 +36,8 @@ Run the app
 ```bash
 java -jar bin/subscriber.jar configuration.yml
 ````
+Log file is `log/publisher_log.log`
+
 
 Available commands
 ------------------
