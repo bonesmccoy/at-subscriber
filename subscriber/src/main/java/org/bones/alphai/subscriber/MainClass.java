@@ -28,11 +28,6 @@ public class MainClass extends Thread
     private Configuration configuration;
     private static at.feedapi.ActiveTickServerAPI serverapi;
     private static APISession apiSession;
-
-    private static final String SUBSCRIBE_COMMAND = "subscribe";
-    private static final String UNSUBSCRIBE_COMMAND = "unsubscribe";
-    private static final String HELP_COMMAND = "?";
-    private static final String QUIT_COMMAND = "quit";
     private static CommandParser commandParser;
 
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -89,72 +84,6 @@ public class MainClass extends Thread
     {
         StreamTradeCommand streamTradeCommand = new StreamTradeCommand(apiSession);
         commandParser.addCommand(streamTradeCommand);
-    }
-
-    public void subscribeTradesOnly(String commaSeparatedSymbolsList)
-    {
-        if (!checkSession()) { return; }
-        List<ATServerAPIDefines.ATSYMBOL> lstSymbols = parseInputSymbolList(commaSeparatedSymbolsList);
-
-        ATServerAPIDefines.ATStreamRequestType requestType = (new ATServerAPIDefines()).new ATStreamRequestType();
-        requestType.m_streamRequestType =  ATServerAPIDefines.ATStreamRequestType.StreamRequestSubscribeTradesOnly ;
-
-        doRequest(commaSeparatedSymbolsList, lstSymbols, requestType);
-    }
-
-    public void unSubscribeTradesOnly(String commaSeparatedSymbolsList)
-    {
-        if (!checkSession()) { return; }
-
-        List<ATServerAPIDefines.ATSYMBOL> lstSymbols = parseInputSymbolList(commaSeparatedSymbolsList);
-
-        ATServerAPIDefines.ATStreamRequestType requestType = (new ATServerAPIDefines()).new ATStreamRequestType();
-        requestType.m_streamRequestType =  ATServerAPIDefines.ATStreamRequestType.StreamRequestUnsubscribeTradesOnly ;
-
-        doRequest(commaSeparatedSymbolsList, lstSymbols, requestType);
-    }
-
-    public boolean checkSession()
-    {
-        if (!apiSession.GetSession().IsConnected()) {
-            System.out.println("Session is not connected. Retry.");
-
-            return false;
-        }
-
-        return true;
-    }
-
-    private List<ATServerAPIDefines.ATSYMBOL> parseInputSymbolList(String commaSeparatedSymbolsList) {
-
-        List<ATServerAPIDefines.ATSYMBOL> lstSymbols = new ArrayList<ATServerAPIDefines.ATSYMBOL>();
-        if(!commaSeparatedSymbolsList.isEmpty() && !commaSeparatedSymbolsList.contains(",")) {
-            ATServerAPIDefines.ATSYMBOL atSymbol = Helpers.StringToSymbol(commaSeparatedSymbolsList);
-            lstSymbols.add(atSymbol);
-        } else {
-            StringTokenizer symbolTokenizer = new StringTokenizer(commaSeparatedSymbolsList, ",");
-            while(symbolTokenizer.hasMoreTokens()) {
-                ATServerAPIDefines.ATSYMBOL atSymbol = Helpers.StringToSymbol(symbolTokenizer.nextToken());
-                lstSymbols.add(atSymbol);
-            }
-        }
-        return lstSymbols;
-    }
-
-    private void doRequest(String commaSeparatedSymbolsList, List<ATServerAPIDefines.ATSYMBOL> lstSymbols, ATServerAPIDefines.ATStreamRequestType requestType) {
-        ServerRequester requester = apiSession.getServerRequester();
-        long request = requester.SendATQuoteStreamRequest(
-                lstSymbols,
-                requestType,
-                ActiveTickServerAPI.DEFAULT_REQUEST_TIMEOUT
-        );
-
-        String requestName = (requestType.m_streamRequestType == ATServerAPIDefines.ATStreamRequestType.StreamRequestUnsubscribeTradesOnly) ? "unsubscribe" : "subscribe";
-
-        System.out.println("SEND " + request + ": request " + requestName + " [" + commaSeparatedSymbolsList + "]");
-        if(request < 0){
-            System.out.println("Error = " + Errors.GetStringFromError((int)request));
-        }
     }
 
     public static void main(String args[])
