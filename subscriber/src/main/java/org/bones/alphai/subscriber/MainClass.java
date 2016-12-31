@@ -9,6 +9,9 @@ import at.utils.jlib.Errors;
 import org.bones.alphai.subscriber.activetick.APISession;
 import org.bones.alphai.subscriber.activetick.Helper;
 import org.bones.alphai.subscriber.activetick.ServerRequester;
+import org.bones.alphai.subscriber.command.*;
+import org.bones.alphai.subscriber.exception.QuitApplicationException;
+import org.bones.alphai.subscriber.exception.SubscriberException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,13 +33,14 @@ public class MainClass extends Thread
     private static final String UNSUBSCRIBE_COMMAND = "unsubscribe";
     private static final String HELP_COMMAND = "?";
     private static final String QUIT_COMMAND = "quit";
+    private static CommandParser commandParser;
 
     private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     public MainClass(Configuration configuration)
     {
         this.configuration = configuration;
-
+        this.commandParser = new CommandParser();
         start();
     }
 
@@ -45,24 +49,29 @@ public class MainClass extends Thread
         serverapi = new ActiveTickServerAPI();
         serverapi.ATInitAPI();
         apiSession = new APISession(serverapi, this.configuration);
+        loadCommands();
 
         if (! apiSession.connect() ) {
-            System.out.println("Error connecting. Quit.");
+            Helper.PrintOut("Error connecting. Quit.");
 
             return;
         }
-        PrintUsage();
+
+        commandParser.PrintHelp();
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         while(true) {
             try {
                 String line = br.readLine();
                 if (line.length() > 0) {
-                    if (line.startsWith("quit")) {
-                        Helper.PrintOut("Bye");
-                        break;
-                    }
-                    parseInput(line);
+                    commandParser.parse(line).execute();
+                }
+            } catch (SubscriberException e) {
+                if (e instanceof QuitApplicationException) {
+                    Helper.PrintOut("Bye!");
+                    break;
+                } else {
+                    Helper.PrintOut(e.getMessage());
                 }
             } catch (IOException e) {
                 Helper.PrintOut("IO error trying to read your input!");
@@ -76,67 +85,10 @@ public class MainClass extends Thread
         serverapi.ATShutdownAPI();
     }
 
-    private boolean parseInput(String userInput)
+    private void loadCommands()
     {
-        if (!(userInput.length() > 0)) {
-            return true;
-        }
-
-        StringTokenizer st = new StringTokenizer(userInput);
-        List commandTokenList = new ArrayList<String>();
-
-        while(st.hasMoreTokens())
-            commandTokenList.add(st.nextToken());
-        int count = commandTokenList.size();
-
-        if(count > 0 && ((String)commandTokenList.get(0)).equalsIgnoreCase(HELP_COMMAND)) {
-            PrintUsage();
-        }
-
-        String command = (String) commandTokenList.get(0);
-        boolean goOnWithExecution = true;
-        switch (command) {
-            case HELP_COMMAND:
-                PrintUsage();
-                break;
-            case SUBSCRIBE_COMMAND:
-                if (count != 2) {
-                    PrintUsage();
-                } else {
-                    String symbolsList = (String) commandTokenList.get(1);
-                    subscribeTradesOnly(symbolsList);
-                }
-                break;
-            case UNSUBSCRIBE_COMMAND:
-                if (count != 2) {
-                    PrintUsage();
-                } else {
-                    String symbolsList = (String) commandTokenList.get(1);
-                    unSubscribeTradesOnly(symbolsList);
-                }
-                break;
-            case QUIT_COMMAND:
-                goOnWithExecution = false;
-            default:
-                System.out.println("Command " + command + " not found\n");
-                PrintUsage();
-                break;
-        }
-
-        return goOnWithExecution;
-    }
-
-    private void PrintUsage()
-    {
-
-        System.out.println("Trades Stream Subscriber");
-        System.out.println("-------------------------------------------------");
-        System.out.println("Avaliable commands:");
-        System.out.println("");
-        System.out.println("subscribe [symbol] : subscribe to update on trades for symbol(s)");
-        System.out.println("unsubscribe [symbol] : unsubscribe from the udaates for that symbol(s)");
-        System.out.println("quit : quits the app.");
-        System.out.println("? : print this help.");
+        StreamTradeCommand streamTradeCommand = new StreamTradeCommand(apiSession);
+        commandParser.addCommand(streamTradeCommand);
     }
 
     public void subscribeTradesOnly(String commaSeparatedSymbolsList)

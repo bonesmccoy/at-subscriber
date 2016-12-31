@@ -12,7 +12,7 @@ public class MainLogger {
     static public void setup(String logFilePath, String logLevel) throws IOException
     {
         Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-        //Suppress console logger
+
         Logger rootLogger = Logger.getLogger("");
         Handler[] handlers = rootLogger.getHandlers();
         if (handlers[0] instanceof ConsoleHandler) {
